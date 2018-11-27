@@ -1,0 +1,447 @@
+#:kivy 1.0.9
+
+#:include savedialog.kv
+#:include progressdlg.kv
+
+<RoboActionItem>:
+    # input
+    text: cmd.text
+    values: cmd.values
+    paraAble: True
+    tabId: 1
+
+    paras: (0,1,2,3)
+    size_hint: 1.0,0.1
+    # size: ( 500,30 )
+
+    # output
+    cmd: cmd.text
+    para: para.text if self.paraAble else ""
+
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_timeout: 10000000
+    drag_distnce: 0 
+
+    textInput: para.__self__
+
+    # canvas:
+    #     Color: 
+    #         rgb: 0,0,1
+    #     Rectangle:
+    #         pos:  self.pos
+    #         size: self.size
+    Label:
+        id: label 
+        text: str( root.tabId )
+        size_hint: ( 0.1, 1.0 )
+    Spinner:
+        id: cmd
+        text: root.text
+        values: root.values
+        # size: 100,30
+        # max_size: ( 100,50)
+    ToggleButton:
+        id: toggle
+        state: 'down'
+        size_hint: ( 0.3, 1.0 ) 
+        on_release: root.on_toggle( self.state )
+    TextInput:
+        id: para
+        text: '%g,%g,%g,%g' % (root.paras[0],root.paras[1],root.paras[2],root.paras[3])
+        multiline: False   
+                   
+
+<ActionMove@RoboActionItem>:
+    values: ('movej','movel')        
+
+<Scripts>:
+    orientation: 'vertical'
+    spacing: 5
+    manualSpeed:  10
+    autoSpeed:    100
+    cfg: app._cfg
+    text: 'script'
+    height: sp(52)
+    script_cancel: app.on_script_cancel
+
+<ToolButtons>:
+    orientation: 'horizontal'
+    compileMode: compileMode.state
+    # OpsBubble:
+    #     id: bubble
+
+    Button:
+        text: 'Run'
+        background_color: (0,1,0,1)
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_run() 
+    Button:
+        text: 'Stop' 
+        background_color: (1,0,0,1)
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_stop() 
+    Button:
+        text: 'Ops...'
+        on_release: root.show_bubble()
+
+    # Button:
+    #     text: 'Test'
+        # on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_test( )    
+        # on_release: print( app.frame.ids.sm.screens[0].ids )  
+        # on_release: app.frame.ids.sm.ids.ms.on_test( )    
+        # on_release: app.frame.on_test( )    
+        # on_release: app.frame.sm.ids.ms.rightbar.ids.script_mgr.ids.scripts.on_test( )    
+    ToggleButton:
+        text: 'Connect'
+        id: connect
+        on_release: app.on_connect( self )           
+
+    ToggleButton:
+        id: compileMode
+        text: 'Release' if self.state=='down' else 'Debug'
+
+    Spinner:
+        text: '1'
+        values: ('1','2','4')   
+        on_text: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_column( self.text ) 
+
+    # CheckBox:
+    #     text: 'Debug/Release'
+
+<InfoPanel>:
+    orientation: 'vertical'
+    values: (250,0,512,0)
+    paras: ( x.text, y.text, z.text, h.text )
+    
+    BoxLayout:
+        # canvas:
+        #     Color: 
+        #         rgb: 0,0,1
+        #     Rectangle:
+        #         pos:  self.pos
+        #         size: self.size    
+
+        spacing: 5
+        Label: 
+            id: x
+            text: ("%.3f" % root.values[0] )
+            pos: self.pos
+        Label:
+            id: y
+            text: ( "%.3f" % root.values[1] )
+            pos: self.pos
+        Label:
+            id: z
+            text: ( "%.3f" % root.values[2] )
+            pos: self.pos
+        Label:
+            id: h
+            text: ( "%.3f" % root.values[3] )       
+            pos: self.pos
+    BoxLayout:          
+        Button:
+            text: 'align'
+            on_release: app.on_align( )
+        Spinner:
+            text: 'Both'  
+            values: ('Joint','World','Both')
+            on_text: app.on_coord( self.text )
+
+<SpeedPanel>:
+    slider: sld 
+    value: sld.value
+    Label:
+        text: ( "%.2f" % root.slider.value ) + "%"
+    Slider:
+        id: sld 
+        value: 50
+        step: 1
+        range: (20,100)
+
+<OpsPopup>:
+    orientation: 'vertical'
+    auto_dismiss: True
+    dismiss_pop: None
+    Button:
+        text:'Clear'
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_clear(), root.dismiss_pop() 
+    Button:
+        text:'Export'
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_export( self ), root.dismiss_pop()
+    Button:
+        text:'Load' 
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_import( self ), root.dismiss_pop()                 
+    # Button:
+    #     text:'Test' 
+    #     on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_test( ), root.dismiss_pop()                
+
+<ImageButton@Button>:
+    typeStr: '-'
+    font_size: 25
+    # background_down: 't4app/arrow-left.png' if self.typeStr=='-' else 't4app/arrow-right.png'
+    # background_normal: 't4app/w_arrow-left.png' if self.typeStr=='-' else 't4app/w_arrow-right.png'
+
+<CoordButton>:
+    orientation: 'vertical'
+    postStr: '-'
+    ImageButton:
+        typeStr: root.postStr
+        text: 'X' + root.postStr
+        on_release: app.on_coord_release( self, 0, root.postStr )            
+    ImageButton:
+        typeStr: root.postStr
+        text: 'Y' + root.postStr
+        on_release: app.on_coord_release( self, 1, root.postStr )
+    ImageButton:
+        typeStr: root.postStr
+        text: 'Z' + root.postStr               
+        on_release: app.on_coord_release( self, 2, root.postStr )
+
+<JointsButton>:
+    text: '<'
+    orientation: 'vertical'
+    subItems: [0,1,2,3,4]
+    ImageButton:
+        typeStr: '-' if root.text=='-' else '+'
+        id: 4
+        text: 'J' + str( root.subItems[4] ) + root.text
+        on_press:  app.on_joint_press( self, 4, root.text )
+        on_release: app.on_joint_release( self, 4, root.text )
+
+    ImageButton:
+        typeStr: '-' if root.text=='-' else '+'
+        id: 3
+        text: 'J' + str( root.subItems[3] ) + root.text
+        on_press:  app.on_joint_press( self, 3, root.text )
+        on_release: app.on_joint_release( self, 3, root.text )
+    ImageButton:
+        typeStr: '-' if root.text=='-' else '+'
+        id: 2
+        text: 'J' + str( root.subItems[2] ) + root.text
+        on_press:  app.on_joint_press( self, 2, root.text )
+        on_release: app.on_joint_release( self, 2, root.text )
+    ImageButton:
+        typeStr: '-' if root.text=='-' else '+'
+        id: 1
+        text: 'J' + str( root.subItems[1] ) + root.text
+        on_press:  app.on_joint_press( self, 1, root.text )
+        on_release: app.on_joint_release( self, 1, root.text )
+    ImageButton:
+        typeStr: '-' if root.text=='-' else '+'
+        id: 0
+        text: 'J' + str( root.subItems[0] ) + root.text
+        on_press:  app.on_joint_press( self,0, root.text )
+        on_release: app.on_joint_release( self, 0, root.text )
+    
+
+<FileMgr>:
+    size_hint: 1.0,0.5
+    ListView:
+
+<ActionTemplate@Button>
+    size_hint: 0.5,0.1
+    minimum_size: 100,50
+    name: self.text
+    values: ('movej', 'movel')
+    paraAble: True 
+    # on_press: print( self.name )
+    # on_press: print( app.frame.ids.rightbar.script_mgr.scripts )
+    on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.add_script( self, app.frame.ids.sm.screens[0].ids.leftbar.ids.info.paras ) 
+
+<ActionMgr>:
+    TabbedPanel:   
+        do_default_tab: False
+        # tab_pos: 'left_top'
+        TabbedPanelItem:         
+            text: 'move'
+            StackLayout:
+                spacing: 3
+                ActionTemplate:
+                    text: 'center' 
+                    values: ('center',)   
+                    paraAble: False   
+                ActionTemplate:
+                    text: 'movej'
+                ActionTemplate:
+                    text: 'movel'             
+                ActionTemplate:
+                    text: 'expand'    
+                    paraAble: False 
+                    values: ('expand','subtract')             
+                ActionTemplate:
+                    text: 'subtract'  
+                    paraAble: False                                     
+                    values: ('expand','subtract')                            
+
+        TabbedPanelItem:         
+            text: 'sequence'
+            StackLayout:
+                spacing: 3
+                ActionTemplate:
+                    text: 'loop'
+                    values: ('loop',)
+                
+        TabbedPanelItem:         
+            text: 'io'   
+            StackLayout:
+                spacing: 3
+                ActionTemplate:
+                    text: 'write'
+                    values: ('write','read',)
+                ActionTemplate:
+                    text: 'read'            
+                    values: ('write','read',)
+ 
+        TabbedPanelItem:         
+            text: 'wait' 
+            StackLayout:
+                spacing: 3
+                ActionTemplate:
+                    text: 'wait'
+                    values: ('wait',)
+
+<ScriptMgr>:
+    scripts: scripts
+    manualSpeed : 
+    autoSpeed:  
+    compileMode: 
+    TabbedPanel:  
+        do_default_tab: False
+        TabbedPanelItem:       
+            text: scripts.text
+            # ScrollView:
+            id: view
+            Scripts:
+                cols: 1
+                id: scripts
+                # text: 'script'
+                manualSpeed: root.manualSpeed
+                autoSpeed: root.autoSpeed
+                compileMode: root.compileMode
+<LeftBorder>:
+    orientation: 'vertical'
+    spacing: 10
+    world: world.__self__
+    joint: joint.__self__
+    CoordButton:  
+        postStr: '-'          
+        id: world
+    JointsButton:
+        text: '-'
+        id: joint
+
+<RightBorder>:
+    orientation: 'vertical'
+    spacing: 10
+    world: world.__self__
+    joint: joint.__self__
+    CoordButton:   
+        postStr: '+'
+        id: world         
+    JointsButton:
+        text: '+'
+        id: joint
+
+<LeftBar>:
+    orientation: 'vertical'
+    # FileMgr:
+    ActionMgr:
+        size_hint: 1.0,0.8
+    InfoPanel:
+        size_hint: 1.0,0.2
+        id: info
+
+<RightBar>:
+    orientation: 'vertical'
+
+    manualSpeed: manual.value
+    autoSpeed: auto.value
+    compileMode: tools.compileMode
+
+    ToolButtons:
+        size_hint: 1.0,0.1
+        id: tools
+    ScriptMgr:  
+        id: script_mgr 
+        manualSpeed: root.manualSpeed
+        autoSpeed: root.autoSpeed
+        compileMode: root.compileMode
+    BoxLayout:
+        size_hint: 1.0,0.1
+        orientation: 'horizontal'       
+        SpeedPanel:
+            id: manual
+        SpeedPanel:
+            id: auto
+
+<SettingScreen>:  
+
+<MainScreen>:  
+    BoxLayout:
+        orientation: 'horizontal'
+        spacing: 5
+        LeftBorder:
+            size_hint: 0.2,1.0
+            id: leftborder
+        LeftBar:
+            size_hint: 0.4,1.0
+            id: leftbar
+
+        RightBar:
+            id: rightbar
+
+        RightBorder:
+            size_hint: 0.2, 1.0
+            id: rightborder
+
+<MActionButton>:
+
+
+<MAcionBar@ActionBar>:
+    ActionView:
+        use_separator: True
+        ActionPrevious:
+            title: 'MRX-T4'
+            with_previous: False
+            app_icon: 'image/m.png'
+        # ActionOverflow:
+        ActionButton:
+            text: 'Home'
+            # icon: 'atlas://data/images/defaulttheme/audio-volume-high'
+            on_release: app.on_home()
+        ActionButton:
+            text: 'Fold'
+            on_release: app.on_fold()
+
+        ActionSeparator:            
+
+        ActionButton:
+            text: 'Script'
+            index: 0
+            on_release: app.on_screen_n( self.text, self.index )
+        ActionButton:
+            text: 'Setting'
+            index: 1
+            on_release: app.on_screen_n( self.text, self.index )
+
+        ActionSeparator:
+
+        # ActionButton:
+        MActionButton:
+            text: 'Stop' 
+            background_color: (1,0,0,1)
+            on_release: app.on_fstop()              
+        
+        
+
+<MainFrame>:
+    orientation: 'vertical'
+    MAcionBar:
+    ScreenManager:
+        id: sm
+        screens_name: ( 'script', 'setting' )
+        MainScreen:
+            name:'script'
+            id: ms
+        SettingScreen:
+            name:'setting'
+            id: ss
+     

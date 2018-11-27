@@ -1,0 +1,33 @@
+#:kivy 1.0.9
+
+<SaveLoadDialog>:
+    text_input: text_input
+    accept:None
+    cancel:None
+    accept_text: 'Save'
+
+    # pos_hint: (0.1,0.9)
+    # size_hint: (0.5,0.5)
+    BoxLayout:
+        size: root.size
+        pos: root.pos 
+        orientation:'vertical'
+        FileChooserListView:
+            id:fileChooser
+            filters: ['*.json']
+            on_selection: text_input.text = self.selection and self.selection[0] or ''
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height:30
+            multiline: False 
+        BoxLayout:
+            size_hint_y:None 
+            height:30
+            Button:
+                text:'Cancel'
+                on_release: root.cancel()
+            Button:
+                text: root.accept_text
+                on_release: root.accept( fileChooser.path, text_input.text ) 
+           

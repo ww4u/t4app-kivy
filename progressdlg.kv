@@ -1,0 +1,12 @@
+#:kivy 1.0.9
+<ProgressDialog>:
+    cancel:
+    value: 66
+    BoxLayout:
+        orientation: 'vertical'
+        ProgressBar:
+            id: pb
+            value: root.value
+        Button:
+            text:'Cancel'
+            on_release: root.cancel()
