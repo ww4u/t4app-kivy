@@ -62,6 +62,7 @@ def obj2dict( obj ):
     d['values'] = obj.values 
     d['para_able'] = obj.paraAble
     d['paras'] = obj.paras 
+    d['para_state'] = obj.paraState
     d['tab_id'] = obj.tabId
     return d
 
@@ -82,6 +83,7 @@ def dict2obj( d ):
     item.values = d['values']
     item.paraAble = d['para_able']
     item.paras = d['paras']
+    item.paraState = d['para_state']
     item.tabId = d['tab_id']
     return item  
 
@@ -91,11 +93,14 @@ class RoboActionItem( DragBehavior, BoxLayout ):
     para = StringProperty()
     paraAble = BooleanProperty()
     tabId = NumericProperty(1)
+    paraState = StringProperty()
 
     drag_touch_up = ObjectProperty(None)
 
     def on_toggle( self, state ):
-        print( state )
+        
+        self.paraState = state
+
         if ( 'normal' == state ):
             # self.ids.toggle.window_state = 'hide'
             self.remove_widget( self.textInput )
@@ -170,7 +175,7 @@ class Scripts( GridLayout ):
             # newItem.values = newItem.paras
 
         # txt input
-        print( newItem.ids.toggle.state )
+        newItem.paraState= newItem.ids.toggle.state
         if ( newItem.ids.toggle.state == 'normal' ):
             newItem.remove_widget( newItem.ids.para )    
         else:
@@ -185,8 +190,18 @@ class Scripts( GridLayout ):
         item.drag_touch_up = self.drag_touch_up
         if not item.paraAble:
             item.remove_widget( item.ids.para )
+            item.remove_widget( item.ids.toggle )
         else:
             pass 
+
+        if item.paraState == 'down':
+            item.ids.toggle.state = 'down'
+            pass 
+        elif item.paraAble:
+            item.remove_widget( item.ids.para )
+        else:
+            pass         
+
         self.add_widget( item )                 
 
     def drag_touch_up( self, *args ):
@@ -329,7 +344,7 @@ class Scripts( GridLayout ):
                                  )
         self._progress = Popup( title = 'Progress',
                                 content=dlg,
-                                size_hint=(0.8,0.4), pos_hint={ 'top': 0.8 } )
+                                size_hint=(0.5,0.3), pos_hint={ 'top': 0.8 } )
                
 
     def on_start( self ):

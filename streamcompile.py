@@ -76,7 +76,7 @@ class CompilerContext( ):
         self.mPosNow[3] += h         
 
     def homePos( self ):
-        self.mPosNow = self._homePos
+        self.mPosNow[:] = self._homePos[:]
 
 class StreamCompile( ):
     def __init__( self, opt=0, path = os.path.abspath(os.curdir)):
@@ -199,7 +199,7 @@ if __name__=="__main__":
         self._context.mTrace.append(  RoutePoint(  ( self._context.mPosNow[0], 
                                                      self._context.mPosNow[1],
                                                      self._context.mPosNow[2], 
-                                                     handAngle),
+                                                     self._context.mPosNow[3] + handAngle ),
                                                      math.fabs( handAngle/speed ) ) )
         self._context.accHand( handAngle )                                             
 

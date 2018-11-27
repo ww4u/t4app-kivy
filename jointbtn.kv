@@ -146,13 +146,16 @@
 <SpeedPanel>:
     slider: sld 
     value: sld.value
+    init_value: 50
     Label:
         text: ( "%.2f" % root.slider.value ) + "%"
     Slider:
         id: sld 
-        value: 50
-        step: 1
         range: (20,100)
+        # value: 50
+        value: root.init_value
+        step: 1
+        
 
 <OpsPopup>:
     orientation: 'vertical'
@@ -367,6 +370,7 @@
         orientation: 'horizontal'       
         SpeedPanel:
             id: manual
+            init_value: 20
         SpeedPanel:
             id: auto
 
