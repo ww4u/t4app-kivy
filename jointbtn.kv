@@ -38,17 +38,22 @@
         id: cmd
         text: root.text
         values: root.values
+        
         # size: 100,30
         # max_size: ( 100,50)
-    ToggleButton:
+    # ToggleButton:
+    CheckBox:
         id: toggle
-        state: 'down'
+        state: 'normal'
+        # value: False 
         size_hint: ( 0.3, 1.0 ) 
         on_release: root.on_toggle( self.state )
+        # on_release: root.on_toggle( self.value )
     TextInput:
         id: para
         text: '%g,%g,%g,%g' % (root.paras[0],root.paras[1],root.paras[2],root.paras[3])
-        multiline: False   
+        multiline: False  
+        size_hint: ( 0.3, 1.0 )  
                    
 
 <ActionMove@RoboActionItem>:
@@ -81,14 +86,7 @@
     Button:
         text: 'Ops...'
         on_release: root.show_bubble()
-
-    # Button:
-    #     text: 'Test'
-        # on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_test( )    
-        # on_release: print( app.frame.ids.sm.screens[0].ids )  
-        # on_release: app.frame.ids.sm.ids.ms.on_test( )    
-        # on_release: app.frame.on_test( )    
-        # on_release: app.frame.sm.ids.ms.rightbar.ids.script_mgr.ids.scripts.on_test( )    
+ 
     ToggleButton:
         text: 'Connect'
         id: connect
@@ -169,9 +167,9 @@
     Button:
         text:'Load' 
         on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_import( self ), root.dismiss_pop()                 
-    # Button:
-    #     text:'Test' 
-    #     on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_test( ), root.dismiss_pop()                
+    Button:
+        text:'Test' 
+        on_release: app.frame.ids.sm.screens[0].ids.rightbar.ids.script_mgr.ids.scripts.on_test( ), root.dismiss_pop()                
 
 <ImageButton@Button>:
     typeStr: '-'
@@ -402,16 +400,6 @@
             title: 'MRX-T4'
             with_previous: False
             app_icon: 'image/m.png'
-        # ActionOverflow:
-        ActionButton:
-            text: 'Home'
-            # icon: 'atlas://data/images/defaulttheme/audio-volume-high'
-            on_release: app.on_home()
-        ActionButton:
-            text: 'Fold'
-            on_release: app.on_fold()
-
-        ActionSeparator:            
 
         ActionButton:
             text: 'Script'
@@ -421,6 +409,15 @@
             text: 'Setting'
             index: 1
             on_release: app.on_screen_n( self.text, self.index )
+
+        ActionSeparator:            
+        ActionButton:
+            text: 'Home'
+            on_release: app.on_home()
+        ActionSeparator:    
+        ActionButton:
+            text: 'Fold'
+            on_release: app.on_fold()
 
         ActionSeparator:
 

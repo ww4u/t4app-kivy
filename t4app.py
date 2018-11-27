@@ -169,6 +169,13 @@ class Scripts( GridLayout ):
             newItem.paras = ( float(paras[0]), float(paras[1]), float(paras[2]), float(paras[3])  )
             # newItem.values = newItem.paras
 
+        # txt input
+        print( newItem.ids.toggle.state )
+        if ( newItem.ids.toggle.state == 'normal' ):
+            newItem.remove_widget( newItem.ids.para )    
+        else:
+            pass
+
         self.add_widget( newItem ) 
         # self.mWigList.append( newItem )
 
@@ -265,7 +272,7 @@ class Scripts( GridLayout ):
         # proc = Process( target = testRunProcess, args=('0') )
         # proc.dameon = False
 
-        filePath = os.path.abspath( os.path.curdir ) + "/"
+        filePath = os.path.abspath( os.path.curdir ) + "/cache/"
         self._proc = Thread( target = testRunProcess, args=("python " + filePath + "_local.py", 
                                                             ( self.on_start, self.on_end, self.on_progress ) ) )        
         self.createProgress()
@@ -340,7 +347,7 @@ class Scripts( GridLayout ):
         self._progress.dismiss()
 
         # \todo terminate
-
+        self.on_stop()
 
         pass 
 
@@ -355,12 +362,13 @@ class Scripts( GridLayout ):
             print( val, "*"*10 )            
 
     def compile( self ):
-        complier = StreamCompile( 1 if self.compileMode=='down' else 0  )
+        complier = StreamCompile( 1 if self.compileMode=='down' else 0,
+                                  os.path.abspath( os.path.curdir ) + "/cache" )
 
         # context 
-        hand = self.cfg.getfloat( 'graphics', 'hand' )
+        hand = self.cfg.getfloat( 'config', 'hand' )
 
-        with open( '_local.py', 'w' ) as stream:
+        with open( 'cache/_local.py', 'w' ) as stream:
             complier.attachStream( stream )
             complier.genHead()
             complier.genMain()
@@ -386,9 +394,11 @@ class Scripts( GridLayout ):
     def on_test( self, *args ):
         print( 'test' )
 
-        self.sort_the_pos()
+        self.compile( )
 
-        self._trigger_layout()
+        # self.sort_the_pos()
+
+        # self._trigger_layout()
         # complier = StreamCompile()
 
         # with open( '_local.py', 'w' ) as stream:
@@ -566,7 +576,7 @@ config_json="""
 "type": "numeric",
 "title": "Step",
 "desc": "The step of x/y/z in mm",
-"section": "graphics",
+"section": "config",
 "key": "step"
 },
 
@@ -574,7 +584,7 @@ config_json="""
 "type": "numeric",
 "title": "Hand",
 "desc": "The hand expand angle",
-"section": "graphics",
+"section": "config",
 "key": "hand"
 },
 
@@ -582,7 +592,7 @@ config_json="""
 "type": "numeric",
 "title": "max speed",
 "desc": "The max speed in mm/s",
-"section": "graphics",
+"section": "config",
 "key": "max_speed"
 }
 
@@ -803,7 +813,7 @@ class JointBtnApp( App ):
         else:
             dir = 1            
 
-        step = math.fabs( self._cfg.getfloat('graphics','step') )
+        step = math.fabs( self._cfg.getfloat('config','step') )
         if ( id == 0 ):
             self.this_robo.stepX( 0,0, step * dir, step/self.manualSpeed() )
         elif id == 1:
@@ -834,13 +844,13 @@ class JointBtnApp( App ):
         return math.fabs( dist ) / math.fabs(speed)               
 
     def manualSpeed( self ):
-        maxSpeed = self._cfg.getfloat( 'graphics', 'max_speed' )
+        maxSpeed = self._cfg.getfloat( 'config', 'max_speed' )
         slider = self.frame.ids.sm.screens[0].ids.rightbar.ids.manual
         
         return math.fabs( maxSpeed * slider.value / 100.0 )
 
     def autoSpeed( self ):
-        maxSpeed = self._cfg.getfloat( 'graphics', 'max_speed' )
+        maxSpeed = self._cfg.getfloat( 'config', 'max_speed' )
         slider = self.frame.ids.sm.screens[0].ids.rightbar.ids.auto
         
         return math.fabs( maxSpeed * slider.value / 100.0 )         

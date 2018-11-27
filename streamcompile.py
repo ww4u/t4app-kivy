@@ -62,12 +62,18 @@ class CompilerContext( ):
     def __init__( self, homePos=(0,0,0,0) ):
         self._homePos = homePos
 
-        self.mPosNow = (0,0,0,0)     # current pos
+        self.mPosNow = [0,0,0,0]     # current pos
 
         self.mTrace = RouteTrace()
 
     def setPos( self, pos ):
-        self.mPosNow = pos 
+        self.mPosNow[0:3] = pos[0:3] 
+
+    def setHand( self, h ):
+        self.mPosNow[3] = h
+
+    def accHand( self, h ):
+        self.mPosNow[3] += h         
 
     def homePos( self ):
         self.mPosNow = self._homePos
@@ -195,6 +201,7 @@ if __name__=="__main__":
                                                      self._context.mPosNow[2], 
                                                      handAngle),
                                                      math.fabs( handAngle/speed ) ) )
+        self._context.accHand( handAngle )                                             
 
     def genMove( self, cmd, speed, step, *para ):
         template = ("""this_robo.routeTo( ({0}, {1}, {2}), {4}, step={5} )        
@@ -216,7 +223,9 @@ if __name__=="__main__":
 
         # pos now
         coord = para[0].split(',')
-        pos = ( float(coord[0]), float(coord[1]), float(coord[2]), float(coord[3]), )
+        
+        # keep the hand
+        pos = ( float(coord[0]), float(coord[1]), float(coord[2]), self._context.mPosNow[3], )
 
         self._context.mTrace[-1].mStep = step
         self._context.mTrace.append( RoutePoint( 

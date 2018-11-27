@@ -3,3 +3,4 @@ output/build/
 output/dist/
 !output/t4app.spec
 *.json
+cache/
