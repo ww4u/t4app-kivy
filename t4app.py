@@ -31,7 +31,7 @@ from kivy.clock import Clock
 from kivy.config import ConfigParser
 from kivy.uix.settings import Settings
 
-import os,math,json
+import os,math,json,subprocess
 from multiprocessing import Process
 from threading import Thread
 
@@ -124,7 +124,7 @@ class RoboActionItem( DragBehavior, BoxLayout ):
 
     def on_touch_up(self, touch):
         super( RoboActionItem, self).on_touch_up( touch )
-        if self.drag_touch_up:
+        if self.drag_touch_up and self.collide_point( touch.pos[0], touch.pos[1] ):
             self.drag_touch_up( self, touch )
 
     # def drag_touch_up(self):
@@ -142,7 +142,8 @@ def testRunProcess( arg1, arg2 ):
 
     arg2[0]( )
     arg2[2]( 50 )
-    os.system( arg1 )
+    # os.system( arg1 )
+    subprocess.call( arg1, shell=True )
     arg2[2]( 100 )
     arg2[1]() 
 
@@ -205,9 +206,11 @@ class Scripts( GridLayout ):
         self.add_widget( item )                 
 
     def drag_touch_up( self, *args ):
-        # pass
-        # Clock.sch
-        Clock.schedule_once(partial(self.reLayout, *args ), .1)
+        if ( self.trash_can.collide_point( args[1].pos[0], args[1].pos[1]) ):
+            self.remove_widget( args[0] )
+        else:
+            # Clock.sch
+            Clock.schedule_once(partial(self.reLayout, *args ), .1)
 
     def export_script( self, path, fileName ):
         self._popup.dismiss()
@@ -255,7 +258,9 @@ class Scripts( GridLayout ):
                               cancel=self.dismiss_popup,
                               accept_text = 'Save'
                                )
-        dlg.ids.fileChooser.rootpath =os.path.abspath( os.curdir )  
+        dlg.ids.fileChooser.rootpath =os.path.abspath( os.curdir ) 
+        # dlg.ids.fileChooser.rootpath =os.path.abspath( os.getcwd() )  
+        # dlg.ids.fileChooser.rootpath =os.path.abspath( 'E:/study/kivy/output/dist/MRX-T4' )  
                                     
         self._popup = Popup( title="Save file",
                             content=dlg,
@@ -287,8 +292,9 @@ class Scripts( GridLayout ):
         # proc = Process( target = testRunProcess, args=('0') )
         # proc.dameon = False
 
+        # add the ""
         filePath = os.path.abspath( os.path.curdir ) + "/cache/"
-        self._proc = Thread( target = testRunProcess, args=("python " + filePath + "_local.py", 
+        self._proc = Thread( target = testRunProcess, args=("python \"" + filePath + "_local.py\"", 
                                                             ( self.on_start, self.on_end, self.on_progress ) ) )        
         self.createProgress()
 
@@ -377,13 +383,14 @@ class Scripts( GridLayout ):
             print( val, "*"*10 )            
 
     def compile( self ):
+        lPath = os.path.abspath( os.path.curdir )
         complier = StreamCompile( 1 if self.compileMode=='down' else 0,
-                                  os.path.abspath( os.path.curdir ) + "/cache" )
+                                  lPath + "/cache" )
 
         # context 
         hand = self.cfg.getfloat( 'config', 'hand' )
-
-        with open( 'cache/_local.py', 'w' ) as stream:
+        print( lPath )
+        with open(  lPath + '/cache/_local.py', 'w' ) as stream:
             complier.attachStream( stream )
             complier.genHead()
             complier.genMain()
@@ -619,12 +626,14 @@ class JointBtnApp( App ):
     this_robo = None
     this_clock_event = None
     _cfg = ObjectProperty(None)
+    _trash_can = ObjectProperty(None)
 
     icon = 'image/m.png'
 
     def build(self):
         
         self.frame = MainFrame()
+        self._trash_can = self.frame.ids.sm.screens[0].ids.rightborder.ids.trash_can
 
         parser = ConfigParser()
         parser.read("jointbtn.ini")
@@ -635,7 +644,8 @@ class JointBtnApp( App ):
 
         s = Settings()
         s.add_json_panel( 'config', parser, data=config_json) 
- 
+        s.on_close = partial( self.on_screen_n, 'script', 0  ) 
+
         self.frame.ids.sm.screens[1].add_widget( s )
 
         self.coord = 'Both'

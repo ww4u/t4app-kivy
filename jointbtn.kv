@@ -38,7 +38,7 @@
         id: cmd
         text: root.text
         values: root.values
-        
+        size_hint: ( 0.3, 1.0 )  
         # size: 100,30
         # max_size: ( 100,50)
     # ToggleButton:
@@ -53,7 +53,7 @@
         id: para
         text: '%g,%g,%g,%g' % (root.paras[0],root.paras[1],root.paras[2],root.paras[3])
         multiline: False  
-        size_hint: ( 0.3, 1.0 )  
+        
                    
 
 <ActionMove@RoboActionItem>:
@@ -65,6 +65,8 @@
     manualSpeed:  10
     autoSpeed:    100
     cfg: app._cfg
+    trash_can: app._trash_can 
+
     text: 'script'
     height: sp(52)
     script_cancel: app.on_script_cancel
@@ -331,6 +333,9 @@
     JointsButton:
         text: '-'
         id: joint
+    Button:
+        text:''
+        size_hint: (1.0,0.1)    
 
 <RightBorder>:
     orientation: 'vertical'
@@ -343,6 +348,10 @@
     JointsButton:
         text: '+'
         id: joint
+    Button:
+        id: trash_can
+        text:'Trash can'
+        size_hint: (1.0,0.1)    
 
 <LeftBar>:
     orientation: 'vertical'
