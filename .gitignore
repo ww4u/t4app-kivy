@@ -1,6 +1,9 @@
 __pycache__
 output/build/
 output/dist/
+installer/
+build/
+dist/
 !output/t4app.spec
 *.json
 cache/
